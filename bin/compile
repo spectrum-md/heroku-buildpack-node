@@ -85,4 +85,5 @@ header "Installing node packages"
 
 echo "TODO: caching of node modules" | output
 
-yarn install && yarn autoclean
+yarn install | output
+yarn autoclean | output
