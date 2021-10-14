@@ -6,7 +6,7 @@ ENV_DIR=${3:-}
 BP_DIR=$(cd "$(dirname "${0:-}")"; cd ..; pwd)
 
 NODE_VERSION="${NODE_VERSION:-16.10.0}"
-NODE_ARCHIVE="https://s3.amazonaws.com/heroku-nodebin/node/release/linux-x64/node-v$NODEJS_VERSION-linux-x64.tar.gz"
+NODE_ARCHIVE="https://s3.amazonaws.com/heroku-nodebin/node/release/linux-x64/node-v$NODE_VERSION-linux-x64.tar.gz"
 
 YARN_VERSION="${YARN_VERSION:-1.22.15}"
 YARN_ARCHIVE="https://s3.amazonaws.com/heroku-nodebin/yarn/release/yarn-v${YARN_VERSION}.tar.gz"
