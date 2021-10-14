@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+BUILD_DIR=${1:-}
+CACHE_DIR=${2:-}
+ENV_DIR=${3:-}
+BP_DIR=$(cd "$(dirname "${0:-}")"; cd ..; pwd)
+
+NODE_VERSION="${NODE_VERSION:-16.10.0}"
+NODE_ARCHIVE="https://s3.amazonaws.com/heroku-nodebin/node/release/linux-x64/node-v$NODEJS_VERSION-linux-x64.tar.gz"
+
+YARN_VERSION="${YARN_VERSION:-1.22.15}"
+YARN_ARCHIVE="https://s3.amazonaws.com/heroku-nodebin/yarn/release/yarn-v${YARN_VERSION}.tar.gz"
+
+header() {
+  echo -e "\n" || true
+  echo "-----> $*" || true
+}
+
+output() {
+  while IFS= read -r LINE; do
+    # do not indent headers that are being piped through the output
+    if [[ "$LINE" =~ ^-----\>.* ]]; then
+      echo "$LINE" || true
+    else
+      echo "       $LINE" || true
+    fi
+  done
+}
+
+mkdir -p "$BUILD_DIR/.heroku/node"
+mkdir -p "$BUILD_DIR/.heroku/yarn"
+
+header "Installing node"
+
+cd /tmp
+
+echo "Downloading $NODE_ARCHIVE" | output
+
+code=$(curl "$NODE_ARCHIVE" -L --silent --fail --retry 5 --retry-max-time 15 -o ./node.tar.gz --write-out "%{http_code}")
+
+if [ "$code" != "200" ]; then
+  echo "Unable to download node: $code" | output && exit 1
+fi
+
+# echo "Unpacking the archive" | output
+
+tar xzf ./node.tar.gz --strip-components 1
+
+if [ "$?" != "0" ]; then
+  echo "Failed to unpack" | output && exit 1
+fi
+
+mv ./bin $BUILD_DIR/.heroku/node
+
+header "Installing yarn"
+
+echo "Downloading $YARN_ARCHIVE" | output
+
+code=$(curl "$YARN_ARCHIVE" -L --silent --fail --retry 5 --retry-max-time 15 -o ./yarn.tar.gz --write-out "%{http_code}")
+
+if [ "$code" != "200" ]; then
+  echo "Unable to download yarn: $code" | output && exit 1
+fi
+
+# echo "Unpacking the archive" | output
+
+tar xzf ./yarn.tar.gz --strip-components 1
+
+if [ "$?" != "0" ]; then
+  echo "Failed to unpack" | output && exit 1
+fi
+
+mv ./bin $BUILD_DIR/.heroku/yarn
+
+if [ -w "$BP_DIR" ]; then
+  echo "export PATH=\"$PATH:$BUILD_DIR/.heroku/node/bin\"" >> "$BP_DIR/export"
+  echo "export PATH=\"$PATH:$BUILD_DIR/.heroku/yarn/bin\"" >> "$BP_DIR/export"
+fi
+
+source $BP_DIR/export
+
+cd $BUILD_DIR
+
+header "Installing node packages"
+
+echo "TODO: caching of node modules" | output
+
+yarn install && yarn autoclean
