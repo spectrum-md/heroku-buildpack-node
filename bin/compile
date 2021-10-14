@@ -50,7 +50,7 @@ if [ "$?" != "0" ]; then
   echo "Failed to unpack" | output && exit 1
 fi
 
-mv "./node-v${NODE_VERSION}-linux-x64/*" $BUILD_DIR/.heroku/node/
+mv ./node-v${NODE_VERSION}-linux-x64/* $BUILD_DIR/.heroku/node/
 
 header "Installing yarn"
 
@@ -70,7 +70,7 @@ if [ "$?" != "0" ]; then
   echo "Failed to unpack" | output && exit 1
 fi
 
-mv "./yarn-v${NODE_VERSION}/*" $BUILD_DIR/.heroku/yarn/
+mv ./yarn-v${YARN_VERSION}/* $BUILD_DIR/.heroku/yarn/
 
 if [ -w "$BP_DIR" ]; then
   echo "export PATH=\"$PATH:$BUILD_DIR/.heroku/node/bin\"" >> "$BP_DIR/export"
